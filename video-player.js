@@ -38,6 +38,8 @@ class VideoPlayer extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+    this._video = this.shadowRoot.querySelector('#video');
   }
 
   connectedCallback() {
@@ -50,6 +52,7 @@ class VideoPlayer extends HTMLElement {
   }
 
   _setupVideoControls() {
+    // get UI controls
     const moviePlayer = this.shadowRoot.querySelector('#movie-player');
     const volume = this.shadowRoot.querySelector('#volume');
     const rewind = this.shadowRoot.querySelector('#skip-back');
@@ -63,10 +66,7 @@ class VideoPlayer extends HTMLElement {
     video.controls = false;
     controls.style.display = 'inline-block';
     // pause/play video
-    togglePlay.addEventListener('click', (e) => {
-      if (video.paused || video.ended) video.play();
-      else video.pause();
-    });
+    togglePlay.addEventListener('click', this._playPauseVideo);
 
     // change to full screen mode
     const fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
@@ -93,6 +93,12 @@ class VideoPlayer extends HTMLElement {
         setFullscreenData(true);
      }
     });
+  }
+
+  _playPauseVideo(e) {
+    console.log(e);
+    // if (root._video.paused || root._video.ended) root._video.play();
+    // else video.pause();
   }
 
 }
