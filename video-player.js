@@ -66,7 +66,7 @@ class VideoPlayer extends HTMLElement {
     video.controls = false;
     controls.style.display = 'inline-block';
     // pause/play video
-    togglePlay.addEventListener('click', this._playPauseVideo);
+    togglePlay.addEventListener('click', this._playPauseVideo.bind(this));
 
     // change to full screen mode
     const fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
@@ -95,10 +95,9 @@ class VideoPlayer extends HTMLElement {
     });
   }
 
-  _playPauseVideo(e) {
-    console.log(e);
-    // if (root._video.paused || root._video.ended) root._video.play();
-    // else video.pause();
+  _playPauseVideo() {
+    if (this._video.paused || this._video.ended) this._video.play();
+    else this._video.pause();
   }
 
 }
