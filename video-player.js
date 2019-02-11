@@ -18,7 +18,8 @@ template.innerHTML = `
       <object width="100%" height="400" data="movie.mp4"></object>
     </video>
     <ul id="controls">
-      <li><button id="volume" type="button">Volume</button></li>
+      <li><button id="vol-minus" type="button">Vol-</button></li>
+      <li><button id="vol-plus" type="button">Vol+</button></li>
       <li><button id="skip-back" type="button">Rewind</button></li>
       <li><button id="toggle-play" type="button">Play/Pause</button></li>
       <li><button id="skip-forward" type="button">Fast Forward</button></li>
@@ -53,51 +54,73 @@ class VideoPlayer extends HTMLElement {
 
   _setupVideoControls() {
     // get UI controls
-    const moviePlayer = this.shadowRoot.querySelector('#movie-player');
-    const volume = this.shadowRoot.querySelector('#volume');
+    const volPlus = this.shadowRoot.querySelector('#vol-plus');
+    const volMinus = this.shadowRoot.querySelector('#vol-minus');
     const rewind = this.shadowRoot.querySelector('#skip-back');
-    const togglePlay = this.shadowRoot.querySelector('#toggle-play');
+    const togglePlayBtn = this.shadowRoot.querySelector('#toggle-play');
     const forward = this.shadowRoot.querySelector('#skip-forward');
-    const fullscreen = this.shadowRoot.querySelector('#fullscreen');
+    const fullscreenBtn = this.shadowRoot.querySelector('#fullscreen');
     const video = this.shadowRoot.querySelector('#video');
     const controls = this.shadowRoot.querySelector('#controls');
 
     // hide default controls/show custom controls
     video.controls = false;
-    controls.style.display = 'inline-block';
-    // pause/play video
-    togglePlay.addEventListener('click', this._playPauseVideo.bind(this));
+    controls.style.display = 'flex';
 
-    // change to full screen mode
+    togglePlayBtn.addEventListener('click', this._playPauseVideo.bind(this));
+    volPlus.addEventListener('click', this._toggleVolume.bind(this));
+    volMinus.addEventListener('click', this._toggleVolume.bind(this));
+    // detect for fullscreen mode support
     const fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
     // don't show button if fullscreen mode is not supported
     if (!fullScreenEnabled) {
       fullscreen.style.display = 'none';
     }
-    const isFullScreen = function() {
-      return !!(document.fullScreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement || document.fullscreenElement);
+    else {
+      fullscreenBtn.addEventListener('click', this._launchFullscreenMode.bind(this));
     }
-    fullscreen.addEventListener('click', (e) => {
-      if (isFullScreen()) {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-        else if (document.webkitCancelFullScreen) document.webkitCancelFullScreen();
-        else if (document.msExitFullscreen) document.msExitFullscreen();
-        setFullscreenData(false);
-     }
-     else {
-        if (moviePlayer.requestFullscreen) moviePlayer.requestFullscreen();
-        else if (moviePlayer.mozRequestFullScreen) moviePlayer.mozRequestFullScreen();
-        else if (moviePlayer.webkitRequestFullScreen) moviePlayer.webkitRequestFullScreen();
-        else if (moviePlayer.msRequestFullscreen) moviePlayer.msRequestFullscreen();
-        setFullscreenData(true);
-     }
-    });
   }
 
   _playPauseVideo() {
+    // pause or play video
     if (this._video.paused || this._video.ended) this._video.play();
     else this._video.pause();
+  }
+
+  _launchFullscreenMode() {
+    const moviePlayer = this.shadowRoot.querySelector('#movie-player');
+
+    // check if already in fullscreen
+    const isFullScreen = function() {
+      return !!(document.fullScreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement || document.fullscreenElement);
+    }
+
+    if (isFullScreen()) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.webkitCancelFullScreen) document.webkitCancelFullScreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
+      // setFullscreenData(false);
+    }
+    else {
+      if (moviePlayer.requestFullscreen) moviePlayer.requestFullscreen();
+      else if (moviePlayer.mozRequestFullScreen) moviePlayer.mozRequestFullScreen();
+      else if (moviePlayer.webkitRequestFullScreen) moviePlayer.webkitRequestFullScreen();
+      else if (moviePlayer.msRequestFullscreen) moviePlayer.msRequestFullscreen();
+      // setFullscreenData(true);
+    }
+  }
+
+  _toggleVolume(arg) {
+    const btnText = arg.originalTarget.innerText;
+    const currentVolume = Math.floor(this._video.volume * 10) / 10;
+    console.log(btnText);
+    if (btnText === 'Vol+') {
+      if (currentVolume < 1) this._video.volume += 0.1;
+    }
+    else if (btnText === 'Vol-') {
+      if (currentVolume > 0) this._video.volume -= 0.1;
+    }
   }
 
 }
