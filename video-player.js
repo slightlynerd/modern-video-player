@@ -70,8 +70,12 @@ class VideoPlayer extends HTMLElement {
     togglePlayBtn.addEventListener('click', this._playPauseVideo.bind(this));
     volPlus.addEventListener('click', this._toggleVolume.bind(this));
     volMinus.addEventListener('click', this._toggleVolume.bind(this));
+    rewind.addEventListener('click', this._rewind.bind(this));
+    forward.addEventListener('click', this._forward.bind(this));
+
     // detect for fullscreen mode support
     const fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
+
     // don't show button if fullscreen mode is not supported
     if (!fullScreenEnabled) {
       fullscreen.style.display = 'none';
@@ -112,15 +116,25 @@ class VideoPlayer extends HTMLElement {
   }
 
   _toggleVolume(arg) {
+    // get inner text from the button
     const btnText = arg.originalTarget.innerText;
+    // get integer volume of the button
     const currentVolume = Math.floor(this._video.volume * 10) / 10;
-    console.log(btnText);
+    // conditionally check which button is clicked
     if (btnText === 'Vol+') {
       if (currentVolume < 1) this._video.volume += 0.1;
     }
     else if (btnText === 'Vol-') {
       if (currentVolume > 0) this._video.volume -= 0.1;
     }
+  }
+
+  _rewind() {
+    return this._video.currentTime -= 3;
+  }
+
+  _forward() { 
+    return this._video.currentTime += 5;
   }
 
 }
