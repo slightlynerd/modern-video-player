@@ -3,12 +3,19 @@ template.innerHTML = `
   <style>
     :host {
       display: block;
+      width: 100%;
+    }
+    video {
+      width: 100%;
     }
     #controls {
       display: none;
     }
     ul {
       list-style-type: none;
+    }
+    progress {
+      display: block;
     }
   </style>
   <div id="movie-player">
@@ -25,9 +32,7 @@ template.innerHTML = `
       <li><button id="skip-forward" type="button">Fast Forward</button></li>
       <li><button id="fullscreen" type="button">Fullscreen</button></li>
       <li class="progress">
-        <progress id="progress" value="0" min="0">
-          <span id="progress-bar"></span>
-        </progress>
+        <progress id="progress" value="0" min="0"></progress>
       </li>
     </ul>
   </div>
@@ -62,6 +67,7 @@ class VideoPlayer extends HTMLElement {
     const fullscreenBtn = this.shadowRoot.querySelector('#fullscreen');
     const video = this.shadowRoot.querySelector('#video');
     const controls = this.shadowRoot.querySelector('#controls');
+    const progressBar = this.shadowRoot.querySelector('#progress');
 
     // hide default controls/show custom controls
     video.controls = false;
@@ -70,8 +76,19 @@ class VideoPlayer extends HTMLElement {
     togglePlayBtn.addEventListener('click', this._playPauseVideo.bind(this));
     volPlus.addEventListener('click', this._toggleVolume.bind(this));
     volMinus.addEventListener('click', this._toggleVolume.bind(this));
-    rewind.addEventListener('click', this._rewind.bind(this));
-    forward.addEventListener('click', this._forward.bind(this));
+    rewind.addEventListener('click', this._skip.bind(this));
+    forward.addEventListener('click', this._skip.bind(this));
+
+    // set max attribute for progress bar
+    this._video.addEventListener('loadedmetadata', () => {
+      progressBar.setAttribute('max', this._video.duration);
+    });
+
+    // update the progress bar as the video progresses
+    this._video.addEventListener('timeupdate', function() {
+      if (!progressBar.getAttribute('max')) progress.setAttribute('max', this._video.duration);
+      progressBar.value = video.currentTime;
+    });
 
     // detect for fullscreen mode support
     const fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
@@ -117,24 +134,29 @@ class VideoPlayer extends HTMLElement {
 
   _toggleVolume(arg) {
     // get inner text from the button
-    const btnText = arg.originalTarget.innerText;
+    const btn = arg.target;
+
     // get integer volume of the button
     const currentVolume = Math.floor(this._video.volume * 10) / 10;
-    // conditionally check which button is clicked
-    if (btnText === 'Vol+') {
+
+    // determine the button clicked
+    if (btn.innerText === 'Vol+') {
       if (currentVolume < 1) this._video.volume += 0.1;
     }
-    else if (btnText === 'Vol-') {
+    else if (btn.innerText === 'Vol-') {
       if (currentVolume > 0) this._video.volume -= 0.1;
     }
   }
 
-  _rewind() {
-    return this._video.currentTime -= 3;
-  }
+  _skip(arg) {
+    const btn = arg.target;
 
-  _forward() { 
-    return this._video.currentTime += 5;
+    if (btn.innerText === 'Fast Forward'.trim()) {
+      return this._video.currentTime += 5;
+    }
+    else {
+      return this._video.currentTime -= 3;
+    }
   }
 
 }
