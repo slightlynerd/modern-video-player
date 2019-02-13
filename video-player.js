@@ -13,17 +13,18 @@ template.innerHTML = `
     }
     ul {
       list-style-type: none;
+      padding: 0;
     }
     progress {
       display: block;
     }
   </style>
   <div id="movie-player">
-    <video id="video" width="100%" height="400" controls preload="metadata" poster="bear.png">
-      <source src="movie.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-      <object width="100%" height="400" data="movie.mp4"></object>
-    </video>
+  <video id="video" width="100%" height="400" controls poster="bear.png">
+    <source src="https://res.cloudinary.com/codehacks/video/upload/v1550059883/movie.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+    <object width="100%" height="400" data="movie.mp4"></object>
+  </video>
     <ul id="controls">
       <li><button id="vol-minus" type="button">Vol-</button></li>
       <li><button id="vol-plus" type="button">Vol+</button></li>
@@ -85,8 +86,8 @@ class VideoPlayer extends HTMLElement {
     });
 
     // update the progress bar as the video progresses
-    this._video.addEventListener('timeupdate', function() {
-      if (!progressBar.getAttribute('max')) progress.setAttribute('max', this._video.duration);
+    this._video.addEventListener('timeupdate', () => {
+      if (!progressBar.getAttribute('max')) progressBar.setAttribute('max', this._video.duration);
       progressBar.value = video.currentTime;
     });
 
