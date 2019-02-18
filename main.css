@@ -1,0 +1,17 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+video {
+  width: 100%;
+}
+#controls {
+  display: none;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+progress {
+  display: block;
+}
